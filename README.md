@@ -59,33 +59,33 @@ Sub DodajKlienta()
     
     MsgBox "Klient został dodany!"
 End Sub
-```vba
 
-### `DodajKlienta`
+### `DodajProdukt`
 To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wprowadza dane za pomocą kilku okien dialogowych:
 
 - **Funkcjonalność:**
- 1.Generuje unikalny identyfikator produktu.
- 2.Pobiera dane produktu za pomocą okien InputBox (nazwa, kategoria, cena, ilość na magazynie, producent).
- 3.Automatycznie rejestruje datę wprowadzenia produktu.
- 4.Informuje użytkownika komunikatem o pomyślnym dodaniu produktu.
+  1. Generuje unikalny identyfikator produktu.
+  2. Pobiera dane produktu za pomocą okien InputBox (nazwa, kategoria, cena, ilość na magazynie, producent).
+  3. Automatycznie rejestruje datę wprowadzenia produktu.
+  4. Informuje użytkownika komunikatem o pomyślnym dodaniu produktu.
 
-```vba
-Sub DodajProdukt()
-    Dim ws As Worksheet
-    Set ws = ThisWorkbook.Sheets("Produkty")
-    
-    Dim lastRow As Long
-    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
-    
-    ws.Cells(lastRow, 1).Value = lastRow - 1 ' ID
-    ws.Cells(lastRow, 2).Value = InputBox("Podaj nazwę produktu:")
-    ws.Cells(lastRow, 3).Value = InputBox("Podaj kategorię produktu:")
-    ws.Cells(lastRow, 4).Value = InputBox("Podaj cenę produktu:")
-    ws.Cells(lastRow, 5).Value = InputBox("Podaj ilość na magazynie:")
-    ws.Cells(lastRow, 6).Value = InputBox("Podaj producenta:")
-    ws.Cells(lastRow, 7).Value = Date ' Data wprowadzenia
-    
-    MsgBox "Produkt został dodany!"
-End Sub
-```vba
+- **Kod VBA:**
+  
+  ```vba
+  Sub DodajProdukt()
+      Dim ws As Worksheet
+      Set ws = ThisWorkbook.Sheets("Produkty")
+      
+      Dim lastRow As Long
+      lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
+      
+      ws.Cells(lastRow, 1).Value = lastRow - 1 ' ID
+      ws.Cells(lastRow, 2).Value = InputBox("Podaj nazwę produktu:")
+      ws.Cells(lastRow, 3).Value = InputBox("Podaj kategorię produktu:")
+      ws.Cells(lastRow, 4).Value = InputBox("Podaj cenę produktu:")
+      ws.Cells(lastRow, 5).Value = InputBox("Podaj ilość na magazynie:")
+      ws.Cells(lastRow, 6).Value = InputBox("Podaj producenta:")
+      ws.Cells(lastRow, 7).Value = Date ' Data wprowadzenia
+      
+      MsgBox "Produkt został dodany!"
+  End Sub
