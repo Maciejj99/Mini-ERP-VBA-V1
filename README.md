@@ -110,7 +110,7 @@ To makro umożliwia aktualizację ilości produktu w arkuszu **Produkty**. Użyt
    - Jeśli produkt o danym ID zostanie znaleziony, jego ilość w magazynie jest zaktualizowana.
    - Jeśli produkt o podanym ID nie zostanie znaleziony, użytkownik otrzyma odpowiedni komunikat.
 
--**Kod VBA:**
+- **Kod VBA:**
 
 ```vba
 Sub DodajIloscDoMagazynu()
@@ -178,7 +178,7 @@ To makro pozwala na aktualizację ceny produktu w arkuszu **Produkty**. Użytkow
    - Jeśli produkt o danym ID zostanie znaleziony, jego cena jest zaktualizowana.
    - Jeśli produkt o podanym ID nie zostanie znaleziony, użytkownik otrzyma odpowiedni komunikat.
 
--**Kod VBA:**
+- **Kod VBA:**
 
 ```vba
 Sub AktualizujCeneProduktu()
@@ -368,7 +368,7 @@ To makro generuje raport na temat najwyższego i najniższego zamówienia w arku
 4. **Wyczyszczenie raportu:** 
    - Zanim dane zostaną zapisane w arkuszu **Raporty**, wszystkie poprzednie dane są usuwane.
 
--**Kod VBA:**
+- **Kod VBA:**
 
 ```vba
 Sub RaportNajwyzszeINajnizszeZamowienia()
@@ -471,7 +471,7 @@ To makro generuje raport o produktach, które były najczęściej oraz najmniej 
 4. **Wyczyszczenie raportu:** 
    - Przed zapisaniem wyników w arkuszu "Raporty", wszystkie poprzednie dane są usuwane.
 
--**Kod VBA:**
+- **Kod VBA:**
 
 ```vba
 Sub RaportNajwiecejINajmniejSprzedanychProduktow()
