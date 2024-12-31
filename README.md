@@ -90,6 +90,74 @@ To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wpr
       MsgBox "Produkt został dodany!"
   End Sub
 
+### `DodajIloscDoMagazynu`
+
+To makro umożliwia aktualizację ilości produktu w arkuszu **Produkty**. Użytkownik może wprowadzić ID produktu oraz ilość do dodania do magazynu za pomocą okien dialogowych.
+
+#### **Funkcjonalność:**
+1. **Pobranie danych:** 
+   - ID produktu, którego ilość ma zostać zaktualizowana.
+   - Ilość, którą użytkownik chce dodać.
+  
+2. **Walidacja wprowadzonej ilości:** 
+   - Makro sprawdza, czy ilość do dodania jest większa niż 0.
+
+3. **Aktualizacja magazynu:** 
+   - Produkt o wskazanym ID jest wyszukiwany w arkuszu „Produkty” (w kolumnie A).
+   - Ilość produktu w kolumnie E (ilość w magazynie) jest aktualizowana o wartość wprowadzonego parametru.
+
+4. **Informowanie użytkownika:** 
+   - Jeśli produkt o danym ID zostanie znaleziony, jego ilość w magazynie jest zaktualizowana.
+   - Jeśli produkt o podanym ID nie zostanie znaleziony, użytkownik otrzyma odpowiedni komunikat.
+
+-**Kod VBA:**
+
+```vba
+Sub DodajIloscDoMagazynu()
+    Dim wsProdukty As Worksheet
+    Dim idProduktu As String
+    Dim iloscDoDodania As Long
+    Dim znaleziono As Boolean
+    Dim lastRow As Long
+    Dim i As Long
+    
+    ' Ustawienie arkusza Produkty
+    Set wsProdukty = ThisWorkbook.Sheets("Produkty")
+    
+    ' Pobieranie ID Produktu od użytkownika
+    idProduktu = InputBox("Podaj ID Produktu, którego ilość chcesz zaktualizować:")
+    
+    ' Pobieranie ilości do dodania
+    iloscDoDodania = InputBox("Podaj ilość do dodania:")
+    
+    ' Sprawdzanie, czy podano liczbę dodatnią
+    If iloscDoDodania <= 0 Then
+        MsgBox "Ilość do dodania musi być liczbą większą niż 0!"
+        Exit Sub
+    End If
+    
+    ' Znalezienie wiersza z odpowiednim ID Produktu
+    znaleziono = False
+    lastRow = wsProdukty.Cells(wsProdukty.Rows.Count, 1).End(xlUp).Row ' ostatni wiersz
+    
+    For i = 2 To lastRow ' Zakładając, że dane zaczynają się od drugiego wiersza
+        If wsProdukty.Cells(i, 1).Value = idProduktu Then
+            ' Zaktualizowanie ilości
+            wsProdukty.Cells(i, 5).Value = wsProdukty.Cells(i, 5).Value + iloscDoDodania
+            znaleziono = True
+            Exit For
+        End If
+    Next i
+    
+    ' Jeśli nie znaleziono produktu, wyświetl komunikat
+    If Not znaleziono Then
+        MsgBox "Produkt o podanym ID nie został znaleziony w magazynie!"
+    Else
+        MsgBox "Ilość produktu " & idProduktu & " została zaktualizowana!"
+    End If
+End Sub
+```
+
 ### `DodajZamowienie`
 
 To makro pozwala na dodanie nowego zamówienia do arkusza **Zamówienia**. Wprowadza dane za pomocą kilku okien dialogowych:
@@ -207,3 +275,5 @@ Sub DodajZamowienie()
     
     MsgBox "Zamówienie zostało dodane. Łączna kwota: " & totalPrice
 End Sub
+```
+
