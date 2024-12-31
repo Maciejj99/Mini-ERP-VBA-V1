@@ -90,6 +90,7 @@ To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wpr
       MsgBox "Produkt został dodany!"
   End Sub
 ```
+
 ### `DodajZamówienie`
 To makro pozwala dodanie nowego zamówienia do arkusza **Zamówienia**. Wprowadza dane za pomocą kilku okien dialogowych:
 
