@@ -59,7 +59,7 @@ Sub DodajKlienta()
     
     MsgBox "Klient został dodany!"
 End Sub
-
+```
 ### `DodajProdukt`
 To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wprowadza dane za pomocą kilku okien dialogowych:
 
@@ -89,3 +89,4 @@ To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wpr
       
       MsgBox "Produkt został dodany!"
   End Sub
+```
