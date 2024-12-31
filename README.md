@@ -64,10 +64,10 @@ End Sub
 To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wprowadza dane za pomocą kilku okien dialogowych:
 
 - **Funkcjonalność:**
-  1. Generuje unikalny identyfikator produktu.
-  2. Pobiera dane produktu za pomocą okien InputBox (nazwa, kategoria, cena, ilość na magazynie, producent).
-  3. Automatycznie rejestruje datę wprowadzenia produktu.
-  4. Informuje użytkownika komunikatem o pomyślnym dodaniu produktu.
+1. Generuje unikalny identyfikator produktu.
+2. Pobiera dane produktu za pomocą okien InputBox (nazwa, kategoria, cena, ilość na magazynie, producent).
+3. Automatycznie rejestruje datę wprowadzenia produktu.
+4. Informuje użytkownika komunikatem o pomyślnym dodaniu produktu.
 
 - **Kod VBA:**
   
@@ -90,3 +90,121 @@ To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wpr
       MsgBox "Produkt został dodany!"
   End Sub
 ```
+### `DodajZamówienie`
+To makro pozwala dodanie nowego zamówienia do arkusza **Zamówienia**. Wprowadza dane za pomocą kilku okien dialogowych:
+
+- **Funkcjonalność:**
+1. **Dodawanie nowego zamówienia:** Użytkownik może dodać zamówienie do arkusza „Zamówienia” wprowadzając:
+    - ID klienta,
+    - ID produktów (jedno lub wiele, oddzielone przecinkami),
+    - Ilość zamawianych sztuk dla każdego produktu,
+    - Metodę płatności.
+
+2. **Zarządzanie stanem magazynowym:** Po każdym zamówieniu dostępna ilość produktów w arkuszu „Produkty” jest aktualizowana.
+
+3. **Automatyczne obliczanie łącznej kwoty zamówienia:** Na podstawie ceny produktów oraz wprowadzonej ilości program wylicza sumę zamówienia.
+
+## Kod VBA
+
+```vba
+Sub DodajZamowienie()
+    Dim wsOrders As Worksheet
+    Dim wsProducts As Worksheet
+    Dim wsClients As Worksheet
+    Dim lastOrderRow As Long
+    Dim lastProductRow As Long
+    Dim productIDs As String
+    Dim productID As String
+    Dim totalPrice As Double
+    Dim productPrice As Double
+    Dim productQuantity As Long
+    Dim orderedQuantity As Long
+    Dim i As Long, j As Long
+    Dim orderID As String
+    Dim currentDate As String
+    Dim productFound As Boolean
+    
+    ' Ustawiamy arkusze
+    Set wsOrders = ThisWorkbook.Sheets("Zamówienia")
+    Set wsProducts = ThisWorkbook.Sheets("Produkty")
+    Set wsClients = ThisWorkbook.Sheets("Klienci")
+    
+    ' Znajdowanie ostatniego wiersza w arkuszu zamówienia
+    lastOrderRow = wsOrders.Cells(wsOrders.Rows.Count, 1).End(xlUp).Row + 1
+    
+    ' Generowanie ID Zamówienia
+    orderID = "Z" & Format(lastOrderRow - 1, "0000")
+    wsOrders.Cells(lastOrderRow, 1).Value = orderID ' Wpisanie ID zamówienia
+    
+    ' Pobranie dzisiejszej daty
+    currentDate = Date
+    wsOrders.Cells(lastOrderRow, 2).Value = currentDate ' Wpisanie daty
+    
+    ' Wprowadzanie ID Klienta
+    wsOrders.Cells(lastOrderRow, 3).Value = InputBox("Podaj ID Klienta:")
+    
+    ' Wprowadzanie ID Listy Produktów (można wpisać kilka ID oddzielonych przecinkami)
+    productIDs = InputBox("Podaj ID Listy Produktów (oddzielone przecinkami):")
+    
+    ' Przekształcenie ID produktów do tablicy
+    productIDs = Trim(productIDs) ' Usuwanie zbędnych spacji
+    productIDs = Replace(productIDs, " ", "") ' Usuwanie spacji
+    Dim productIDArray() As String
+    productIDArray = Split(productIDs, ",")
+    
+    ' Inicjalizacja zmiennej na łączną cenę
+    totalPrice = 0
+    
+    ' Przeszukiwanie tablicy ID produktów
+    For i = LBound(productIDArray) To UBound(productIDArray)
+        productID = productIDArray(i)
+        productFound = False ' Flaga informująca, czy produkt został znaleziony
+        
+        ' Znajdowanie ceny i ilości produktu w arkuszu Produkty
+        lastProductRow = wsProducts.Cells(wsProducts.Rows.Count, 1).End(xlUp).Row
+        For j = 2 To lastProductRow
+            If wsProducts.Cells(j, 1).Value = productID Then
+                productPrice = wsProducts.Cells(j, 4).Value
+                ' Sprawdzanie, czy wartość komórki w kolumnie E (ilość) jest liczbą
+                If IsNumeric(wsProducts.Cells(j, 5).Value) Then
+                    productQuantity = wsProducts.Cells(j, 5).Value ' Ilość dostępnych produktów (kolumna E)
+                Else
+                    productQuantity = 0 ' Jeśli wartość nie jest liczbą, ustawiamy ilość na 0
+                End If
+                productFound = True
+                Exit For
+            End If
+        Next j
+        
+        ' Sprawdzamy, czy produkt został znaleziony
+        If productFound Then
+            ' Wprowadzanie ilości zamawianych sztuk
+            orderedQuantity = InputBox("Podaj ilość zamawianych sztuk dla produktu " & productID & " (dostępnych: " & productQuantity & "):")
+            
+            ' Sprawdzamy, czy zamówiona ilość jest dostępna
+            If orderedQuantity <= productQuantity And orderedQuantity > 0 Then
+                ' Zmniejszamy ilość w arkuszu Produkty
+                wsProducts.Cells(j, 5).Value = productQuantity - orderedQuantity ' Zmniejszamy dostępne sztuki (kolumna E)
+                totalPrice = totalPrice + (productPrice * orderedQuantity) ' Dodajemy cenę zamówionych sztuk do łącznej kwoty
+            Else
+                MsgBox "Brak wystarczającej ilości produktu " & productID & " lub niepoprawna liczba.", vbExclamation
+                Exit Sub
+            End If
+        Else
+            MsgBox "Produkt o ID " & productID & " nie został znaleziony.", vbExclamation
+            Exit Sub
+        End If
+    Next i
+    
+    ' Wpisywanie łącznej kwoty do arkusza Zamówienia
+    wsOrders.Cells(lastOrderRow, 4).Value = productIDs ' Zapisujemy ID produktów
+    wsOrders.Cells(lastOrderRow, 5).Value = totalPrice ' Zapisujemy łączną kwotę
+    
+    ' Status zamówienia i metoda płatności
+    wsOrders.Cells(lastOrderRow, 6).Value = "Nowe" ' Status zamówienia (domyślnie)
+    wsOrders.Cells(lastOrderRow, 7).Value = InputBox("Podaj metodę płatności (np. Przelew, Karta, Blik):") ' Metoda płatności
+    
+    MsgBox "Zamówienie zostało dodane. Łączna kwota: " & totalPrice
+End Sub
+```
+
