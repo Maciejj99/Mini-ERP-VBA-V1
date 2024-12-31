@@ -90,14 +90,17 @@ To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wpr
       MsgBox "Produkt został dodany!"
   End Sub
 ```
-### `DodajProdukt`
-To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wprowadza dane za pomocą kilku okien dialogowych:
+### `DodajZamowienie`
+
+To makro pozwala na dodanie nowego zamówienia do arkusza **Zamówienia**. Wprowadza dane za pomocą kilku okien dialogowych:
 
 - **Funkcjonalność:**
-1. Generuje unikalny identyfikator produktu.
-2. Pobiera dane produktu za pomocą okien InputBox (nazwa, kategoria, cena, ilość na magazynie, producent).
-3. Automatycznie rejestruje datę wprowadzenia produktu.
-4. Informuje użytkownika komunikatem o pomyślnym dodaniu produktu.
-
-
-
+  1. **Dodawanie nowego zamówienia:** Użytkownik może dodać zamówienie do arkusza „Zamówienia” wprowadzając:
+      - ID klienta,
+      - ID produktów (jedno lub wiele, oddzielone przecinkami),
+      - Ilość zamawianych sztuk dla każdego produktu,
+      - Metodę płatności.
+  
+  2. **Zarządzanie stanem magazynowym:** Po każdym zamówieniu dostępna ilość produktów w arkuszu **„Produkty”** jest aktualizowana.
+  
+  3. **Automatyczne obliczanie łącznej kwoty zamówienia:** Na podstawie ceny produktów oraz wprowadzonej ilości program wylicza sumę zamówienia.
