@@ -35,10 +35,10 @@ Ten projekt zawiera proste rozwiązanie systemu ERP zrealizowane w Excelu, wspom
 To makro pozwala na szybkie dodanie nowego klienta do arkusza **Klienci**. Wprowadza dane za pomocą kilku okien dialogowych:
 
 - **Funkcjonalność:**
-  1. Dodaje unikalny identyfikator klienta.
-  2. Pobiera dane klienta za pomocą okien InputBox (nazwa, kontakt, adres, typ).
-  3. Automatycznie rejestruje datę utworzenia klienta.
-  4. Informuje użytkownika komunikatem o pomyślnym dodaniu klienta.
+1. Dodaje unikalny identyfikator klienta.
+2. Pobiera dane klienta za pomocą okien InputBox (nazwa, kontakt, adres, typ).
+3. Automatycznie rejestruje datę utworzenia klienta.
+4. Informuje użytkownika komunikatem o pomyślnym dodaniu klienta.
 
 - **Kod VBA:**
 
@@ -59,6 +59,7 @@ Sub DodajKlienta()
     
     MsgBox "Klient został dodany!"
 End Sub
+```vba
 
 ### `DodajKlienta`
 To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wprowadza dane za pomocą kilku okien dialogowych:
@@ -68,3 +69,23 @@ To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wpr
  2.Pobiera dane produktu za pomocą okien InputBox (nazwa, kategoria, cena, ilość na magazynie, producent).
  3.Automatycznie rejestruje datę wprowadzenia produktu.
  4.Informuje użytkownika komunikatem o pomyślnym dodaniu produktu.
+
+```vba
+Sub DodajProdukt()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Produkty")
+    
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
+    
+    ws.Cells(lastRow, 1).Value = lastRow - 1 ' ID
+    ws.Cells(lastRow, 2).Value = InputBox("Podaj nazwę produktu:")
+    ws.Cells(lastRow, 3).Value = InputBox("Podaj kategorię produktu:")
+    ws.Cells(lastRow, 4).Value = InputBox("Podaj cenę produktu:")
+    ws.Cells(lastRow, 5).Value = InputBox("Podaj ilość na magazynie:")
+    ws.Cells(lastRow, 6).Value = InputBox("Podaj producenta:")
+    ws.Cells(lastRow, 7).Value = Date ' Data wprowadzenia
+    
+    MsgBox "Produkt został dodany!"
+End Sub
+```vba
