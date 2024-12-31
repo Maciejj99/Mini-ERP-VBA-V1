@@ -29,3 +29,42 @@ Ten projekt zawiera proste rozwiązanie systemu ERP zrealizowane w Excelu, wspom
    - Rejestruj zamówienia w arkuszu **Zamówienia**.
    - Analizuj wyniki w arkuszu **Raporty**.
 
+## Makra
+
+### `DodajKlienta`
+To makro pozwala na szybkie dodanie nowego klienta do arkusza **Klienci**. Wprowadza dane za pomocą kilku okien dialogowych:
+
+- **Funkcjonalność:**
+  1. Dodaje unikalny identyfikator klienta.
+  2. Pobiera dane klienta za pomocą okien InputBox (nazwa, kontakt, adres, typ).
+  3. Automatycznie rejestruje datę utworzenia klienta.
+  4. Informuje użytkownika komunikatem o pomyślnym dodaniu klienta.
+
+- **Kod VBA:**
+
+```vba
+Sub DodajKlienta()
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Klienci")
+    
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
+    
+    ws.Cells(lastRow, 1).Value = lastRow - 1 ' ID
+    ws.Cells(lastRow, 2).Value = InputBox("Podaj nazwę klienta:")
+    ws.Cells(lastRow, 3).Value = InputBox("Podaj kontakt (telefon/email):")
+    ws.Cells(lastRow, 4).Value = InputBox("Podaj adres klienta:")
+    ws.Cells(lastRow, 5).Value = InputBox("Podaj typ klienta (Firma/Detaliczny):")
+    ws.Cells(lastRow, 6).Value = Date ' Data rejestracji
+    
+    MsgBox "Klient został dodany!"
+End Sub
+
+### `DodajKlienta`
+To makro pozwala na szybkie dodanie nowego produktu do arkusza **Produkty**. Wprowadza dane za pomocą kilku okien dialogowych:
+
+- **Funkcjonalność:**
+ 1.Generuje unikalny identyfikator produktu.
+ 2.Pobiera dane produktu za pomocą okien InputBox (nazwa, kategoria, cena, ilość na magazynie, producent).
+ 3.Automatycznie rejestruje datę wprowadzenia produktu.
+ 4.Informuje użytkownika komunikatem o pomyślnym dodaniu produktu.
