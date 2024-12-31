@@ -51,7 +51,7 @@ Sub DodajKlienta()
     lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
     
     ws.Cells(lastRow, 1).Value = lastRow - 1 ' ID
-    ws.Cells(lastRow, 2).Value = InputBox("Podaj nazwę klienta:")
+    ws.Cells(lastRow, 2).Value =  InputBox("Podaj nazwę klienta:")
     ws.Cells(lastRow, 3).Value = InputBox("Podaj kontakt (telefon/email):")
     ws.Cells(lastRow, 4).Value = InputBox("Podaj adres klienta:")
     ws.Cells(lastRow, 5).Value = InputBox("Podaj typ klienta (Firma/Detaliczny):")
