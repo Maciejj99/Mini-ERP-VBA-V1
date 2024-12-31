@@ -157,6 +157,74 @@ Sub DodajIloscDoMagazynu()
     End If
 End Sub
 ```
+### `AktualizujCeneProduktu`
+
+To makro pozwala na aktualizację ceny produktu w arkuszu **Produkty**. Użytkownik może wprowadzić ID produktu oraz nową cenę za pomocą okien dialogowych.
+
+#### **Funkcjonalność:**
+
+1. **Pobranie danych:** 
+   - ID produktu, którego cena ma zostać zaktualizowana.
+   - Nową cenę produktu.
+
+2. **Walidacja nowej ceny:** 
+   - Makro sprawdza, czy cena jest liczbą dodatnią.
+
+3. **Aktualizacja ceny:** 
+   - Produkt o wskazanym ID jest wyszukiwany w arkuszu „Produkty” (w kolumnie A).
+   - Cena produktu w kolumnie D (cena jednostkowa) jest aktualizowana na podstawie wprowadzonej nowej ceny.
+
+4. **Informowanie użytkownika:** 
+   - Jeśli produkt o danym ID zostanie znaleziony, jego cena jest zaktualizowana.
+   - Jeśli produkt o podanym ID nie zostanie znaleziony, użytkownik otrzyma odpowiedni komunikat.
+
+-**Kod VBA:**
+
+```vba
+Sub AktualizujCeneProduktu()
+    Dim wsProdukty As Worksheet
+    Dim idProduktu As String
+    Dim nowaCena As Double
+    Dim znaleziono As Boolean
+    Dim lastRow As Long
+    Dim i As Long
+    
+    ' Ustawienie arkusza Produkty
+    Set wsProdukty = ThisWorkbook.Sheets("Produkty")
+    
+    ' Pobieranie ID Produktu od użytkownika
+    idProduktu = InputBox("Podaj ID Produktu, którego cenę chcesz zaktualizować:")
+    
+    ' Pobieranie nowej ceny od użytkownika
+    nowaCena = InputBox("Podaj nową cenę produktu:")
+    
+    ' Sprawdzanie, czy cena jest liczbą dodatnią
+    If nowaCena <= 0 Then
+        MsgBox "Cena musi być liczbą większą niż 0!"
+        Exit Sub
+    End If
+    
+    ' Znalezienie wiersza z odpowiednim ID Produktu
+    znaleziono = False
+    lastRow = wsProdukty.Cells(wsProdukty.Rows.Count, 1).End(xlUp).Row ' ostatni wiersz
+    
+    For i = 2 To lastRow ' Zakładając, że dane zaczynają się od drugiego wiersza
+        If wsProdukty.Cells(i, 1).Value = idProduktu Then
+            ' Zaktualizowanie ceny
+            wsProdukty.Cells(i, 4).Value = nowaCena
+            znaleziono = True
+            Exit For
+        End If
+    Next i
+    
+    ' Jeśli nie znaleziono produktu, wyświetl komunikat
+    If Not znaleziono Then
+        MsgBox "Produkt o podanym ID nie został znaleziony!"
+    Else
+        MsgBox "Cena produktu " & idProduktu & " została zaktualizowana na " & nowaCena & "!"
+    End If
+End Sub
+```
 
 ### `DodajZamowienie`
 
@@ -276,4 +344,224 @@ Sub DodajZamowienie()
     MsgBox "Zamówienie zostało dodane. Łączna kwota: " & totalPrice
 End Sub
 ```
+### `RaportNajwyzszeINajnizszeZamowienia`
+
+To makro generuje raport na temat najwyższego i najniższego zamówienia w arkuszu **Zamówienia**. Raport zawiera szczegóły dotyczące ID zamówienia, ID klienta, listy produktów oraz łącznej kwoty zamówienia. Wyniki są zapisywane w arkuszu **Raporty**.
+
+#### **Funkcjonalność:**
+
+1. **Pobieranie danych z arkusza "Zamówienia":**
+   - Arkusz **Zamówienia** musi zawierać dane o zamówieniach, w tym kwotę zamówienia (kolumna 5), ID klienta (kolumna 3) oraz ID listy produktów (kolumna 4).
+   
+2. **Obliczenia:**
+   - Makro przeszukuje dane zamówień, aby znaleźć:
+     - Najwyższą kwotę zamówienia
+     - Najniższą kwotę zamówienia
+
+3. **Tworzenie raportu:**
+   - Po przetworzeniu danych makro generuje raport w arkuszu **Raporty**, zawierający:
+     - ID najwyższego i najniższego zamówienia,
+     - ID klienta,
+     - Listę produktów,
+     - Kwotę zamówienia.
+
+4. **Wyczyszczenie raportu:** 
+   - Zanim dane zostaną zapisane w arkuszu **Raporty**, wszystkie poprzednie dane są usuwane.
+
+-**Kod VBA:**
+
+```vba
+Sub RaportNajwyzszeINajnizszeZamowienia()
+    Dim wsZamowienia As Worksheet
+    Dim wsRaporty As Worksheet
+    Dim lastRowZamowienia As Long
+    Dim i As Long
+    Dim kwota As Double
+    Dim maxKwota As Double
+    Dim minKwota As Double
+    Dim maxIDKlienta As String, minIDKlienta As String
+    Dim maxProdukty As String, minProdukty As String
+    Dim maxZamowienieID As String, minZamowienieID As String
+
+    ' Ustawienia początkowe
+    Set wsZamowienia = ThisWorkbook.Sheets("Zamówienia")
+    Set wsRaporty = ThisWorkbook.Sheets("Raporty")
+    lastRowZamowienia = wsZamowienia.Cells(wsZamowienia.Rows.Count, 1).End(xlUp).Row
+
+    ' Sprawdź, czy są dane w arkuszu "Zamówienia"
+    If lastRowZamowienia < 2 Then
+        MsgBox "Brak danych w arkuszu 'Zamówienia'.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Inicjalizuj zmienne
+    maxKwota = -1
+    minKwota = WorksheetFunction.Max(wsZamowienia.Columns(5)) + 1 ' Największa możliwa liczba w kolumnie Kwota
+
+    ' Przejdź przez dane w arkuszu "Zamówienia"
+    For i = 2 To lastRowZamowienia
+        ' Pobierz kwotę
+        kwota = wsZamowienia.Cells(i, 5).Value ' Zakładamy, że kolumna 5 to "Łączna kwota"
+
+        ' Sprawdź, czy kwota jest liczbą
+        If IsNumeric(kwota) And kwota > 0 Then
+            ' Jeśli to najwyższa kwota
+            If kwota > maxKwota Then
+                maxKwota = kwota
+                maxIDKlienta = wsZamowienia.Cells(i, 3).Value ' ID Klienta
+                maxProdukty = wsZamowienia.Cells(i, 4).Value ' ID Lista produktów
+                maxZamowienieID = wsZamowienia.Cells(i, 1).Value ' ID Zamówienia
+            End If
+            
+            ' Jeśli to najniższa kwota
+            If kwota < minKwota Then
+                minKwota = kwota
+                minIDKlienta = wsZamowienia.Cells(i, 3).Value ' ID Klienta
+                minProdukty = wsZamowienia.Cells(i, 4).Value ' ID Lista produktów
+                minZamowienieID = wsZamowienia.Cells(i, 1).Value ' ID Zamówienia
+            End If
+        End If
+    Next i
+
+    ' Wyczyść arkusz "Raporty"
+    wsRaporty.Cells.Clear
+
+    ' Dodaj nagłówki do arkusza "Raporty"
+    wsRaporty.Cells(1, 1).Value = "Typ Raportu"
+    wsRaporty.Cells(1, 2).Value = "ID Zamówienia"
+    wsRaporty.Cells(1, 3).Value = "ID Klienta"
+    wsRaporty.Cells(1, 4).Value = "Lista Produktów"
+    wsRaporty.Cells(1, 5).Value = "Kwota"
+
+    ' Zapisz dane najwyższego zamówienia
+    wsRaporty.Cells(2, 1).Value = "Najwyższe zamówienie"
+    wsRaporty.Cells(2, 2).Value = maxZamowienieID
+    wsRaporty.Cells(2, 3).Value = maxIDKlienta
+    wsRaporty.Cells(2, 4).Value = maxProdukty
+    wsRaporty.Cells(2, 5).Value = maxKwota
+
+    ' Zapisz dane najniższego zamówienia
+    wsRaporty.Cells(3, 1).Value = "Najniższe zamówienie"
+    wsRaporty.Cells(3, 2).Value = minZamowienieID
+    wsRaporty.Cells(3, 3).Value = minIDKlienta
+    wsRaporty.Cells(3, 4).Value = minProdukty
+    wsRaporty.Cells(3, 5).Value = minKwota
+
+    MsgBox "Raport został wygenerowany!", vbInformation
+End Sub
+```
+
+### `RaportNajwiecejINajmniejSprzedanychProduktow`
+
+To makro generuje raport o produktach, które były najczęściej oraz najmniej zamawiane w arkuszu **Zamówienia**. Wyniki są zapisywane w arkuszu **Raporty**.
+
+#### **Funkcjonalność:**
+
+1. **Zliczanie sprzedanych produktów:** 
+   - Makro przeszukuje wszystkie zamówienia zapisane w arkuszu "Zamówienia" i zlicza wystąpienia ID produktów (zawartych w kolumnie "ID lista produktów").
+   
+2. **Obliczenie najczęściej i najmniej zamawianych produktów:**
+   - Makro identyfikuje produkt, który został zamówiony najwięcej razy oraz produkt, który wystąpił najmniej razy w całym zestawie zamówień.
+
+3. **Generowanie raportu:**
+   - Raport zawiera szczegóły dotyczące:
+     - ID najczęściej zamawianego produktu i liczby jego zamówień.
+     - ID najmniej zamawianego produktu i liczby jego zamówień.
+   
+4. **Wyczyszczenie raportu:** 
+   - Przed zapisaniem wyników w arkuszu "Raporty", wszystkie poprzednie dane są usuwane.
+
+-**Kod VBA:**
+
+```vba
+Sub RaportNajwiecejINajmniejSprzedanychProduktow()
+    Dim wsZamowienia As Worksheet
+    Dim wsRaporty As Worksheet
+    Dim lastRowZamowienia As Long
+    Dim i As Long
+    Dim produktID As Variant ' Zmieniono na Variant
+    Dim maxSprzedaz As Long
+    Dim minSprzedaz As Long
+    Dim maxProdukt As String
+    Dim minProdukt As String
+    Dim produktyCount As Object
+    Dim produktIDs As Variant
+    Dim j As Long
+
+    ' Ustawienia początkowe
+    Set wsZamowienia = ThisWorkbook.Sheets("Zamówienia")
+    Set wsRaporty = ThisWorkbook.Sheets("Raporty")
+    lastRowZamowienia = wsZamowienia.Cells(wsZamowienia.Rows.Count, 1).End(xlUp).Row
+
+    ' Sprawdź, czy są dane w arkuszu "Zamówienia"
+    If lastRowZamowienia < 2 Then
+        MsgBox "Brak danych w arkuszu 'Zamówienia'.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Inicjalizuj słownik do zliczania produktów
+    Set produktyCount = CreateObject("Scripting.Dictionary")
+    maxSprzedaz = -1
+    minSprzedaz = lastRowZamowienia + 1 ' Ustawienie wartości maksymalnej na bardzo dużą liczbę
+
+    ' Przejdź przez dane w arkuszu "Zamówienia"
+    For i = 2 To lastRowZamowienia
+        ' Pobierz listę produktów z kolumny "ID lista produktów"
+        produktIDs = Split(wsZamowienia.Cells(i, 4).Value, ",") ' Zakładamy, że kolumna 4 to "ID lista produktów"
+        
+        ' Sprawdź, czy lista produktów nie jest pusta
+        If Len(wsZamowienia.Cells(i, 4).Value) > 0 Then
+            ' Zlicz każdy ID produktowy w liście
+            For j = LBound(produktIDs) To UBound(produktIDs)
+                produktID = Trim(produktIDs(j)) ' Pobierz ID produktu, usuwając ewentualne spacje
+
+                ' Sprawdź, czy produktID już istnieje w słowniku, jeśli tak, zwiększ liczbę
+                If produktyCount.Exists(produktID) Then
+                    produktyCount(produktID) = produktyCount(produktID) + 1
+                Else
+                    produktyCount.Add produktID, 1 ' Jeśli nie, dodaj do słownika z wartością 1
+                End If
+            Next j
+        End If
+    Next i
+
+    ' Inicjalizuj zmienne dla najczęściej i najmniej zamawianych produktów
+    maxProdukt = ""
+    minProdukt = ""
+    maxSprzedaz = -1
+    minSprzedaz = lastRowZamowienia + 1
+
+    ' Przejdź przez zliczone dane i znajdź max i min
+    For Each produktID In produktyCount.Keys
+        If produktyCount(produktID) > maxSprzedaz Then
+            maxSprzedaz = produktyCount(produktID)
+            maxProdukt = produktID
+        End If
+        If produktyCount(produktID) < minSprzedaz Then
+            minSprzedaz = produktyCount(produktID)
+            minProdukt = produktID
+        End If
+    Next produktID
+
+    ' Wyczyść arkusz "Raporty"
+    wsRaporty.Cells.Clear
+
+    ' Dodaj nagłówki do arkusza "Raporty"
+    wsRaporty.Cells(1, 1).Value = "Typ Raportu"
+    wsRaporty.Cells(1, 2).Value = "ID Produktu"
+    wsRaporty.Cells(1, 3).Value = "Liczba Zamówień"
+
+    ' Wstaw dane o najczęściej zamawianym produkcie
+    wsRaporty.Cells(2, 1).Value = "Najczęściej zamawiany produkt"
+    wsRaporty.Cells(2, 2).Value = maxProdukt
+    wsRaporty.Cells(2, 3).Value = maxSprzedaz
+
+    ' Wstaw dane o najmniej zamawianym produkcie
+    wsRaporty.Cells(3, 1).Value = "Najmniej zamawiany produkt"
+    wsRaporty.Cells(3, 2).Value = minProdukt
+    wsRaporty.Cells(3, 3).Value = minSprzedaz
+
+    MsgBox "Raport został wygenerowany!", vbInformation
+End Sub
+
 
